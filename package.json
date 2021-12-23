@@ -1,6 +1,9 @@
 {
   "name": "hyper-vscode-github-auto-theme",
   "version": "0.0.1",
+  "files": [
+    "index.js"
+  ],
   "repository": "https://github.com/vrslev/hyper-vscode-github-auto-theme",
   "author": "Lev Vereshchagin <mail@vrslev.com>",
   "license": "MIT",
