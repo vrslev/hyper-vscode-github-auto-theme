@@ -1,0 +1,14 @@
+{
+  "name": "hyper-vscode-github-auto-theme",
+  "version": "0.0.1",
+  "repository": "https://github.com/vrslev/hyper-vscode-github-auto-theme",
+  "author": "Lev Vereshchagin <mail@vrslev.com>",
+  "license": "MIT",
+  "keywords": [
+    "hyper",
+    "hyper-app",
+    "hyper-plugin",
+    "dark mode"
+  ],
+  "description": "Theme for Hyper terminal that copies colors from VS Code GitHub theme and switches light/dark modes automatically"
+}
