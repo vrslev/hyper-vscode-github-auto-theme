@@ -1,5 +1,3 @@
-const { nativeTheme, ipcRenderer, remote } = require("electron");
-
 const lightTheme = {
   cursorColor: "#d1d5da",
   cursorAccentColor: "#005cc5",
@@ -62,57 +60,42 @@ const darkTheme = {
   },
 };
 
-function getNativeTheme() {
-  if (nativeTheme) {
-    return nativeTheme;
-  } else if (remote && remote.nativeTheme) {
-    return remote.nativeTheme;
-  }
-  throw new Error(
-    `nativeTheme is undefined: type=${process.type} ipc=${ipcRenderer}`
-  );
-}
-
-function getRequiredTheme() {
-  return getNativeTheme().shouldUseDarkColors ? darkTheme : lightTheme;
-}
-
-exports.onApp = (app) => {
-  getNativeTheme().on("updated", () => {
-    app.getWindows().forEach((window) => {
-      window.rpc.emit("themeSwitcherNativeModeUpdated");
-    });
+function toggleTheme() {
+  window.store.dispatch({
+    type: "THEME_SWITCHER_UPDATE_THEME",
+    config: config.getConfig(),
   });
-};
+}
 
 exports.middleware = () => (next) => (action) => {
   if (action.type === "CONFIG_LOAD") {
-    window.rpc.on("themeSwitcherNativeModeUpdated", () => {
-      window.store.dispatch({
-        type: "THEME_SWITCHER_UPDATE_THEME",
-        config: config.getConfig(),
-      });
-    });
+    window.matchMedia("(prefers-color-scheme: light)").addListener(toggleTheme);
+    window.matchMedia("(prefers-color-scheme: dark)").addListener(toggleTheme);
+    toggleTheme();
   }
   next(action);
 };
 
 exports.decorateConfig = (config) => {
-  return Object.assign({}, config, getRequiredTheme());
+  return Object.assign({}, config, darkTheme); // TODO: Initially set the right theme. How?
 };
 
 exports.reduceUI = (state, { type, config }) => {
-  if (type == "THEME_SWITCHER_UPDATE_THEME") {
-    const theme = getRequiredTheme();
-    return state
-      .set("cursorColor", theme.cursorColor)
-      .set("cursorAccentColor", theme.cursorAccentColor)
-      .set("foregroundColor", theme.foregroundColor)
-      .set("backgroundColor", theme.backgroundColor)
-      .set("selectionColor", theme.selectionColor)
-      .set("borderColor", theme.borderColor)
-      .set("colors", theme.colors)
-      .set("css", `${config.css || ""} ${theme.css}`);
+  if (type != "THEME_SWITCHER_UPDATE_THEME") {
+    return state;
   }
-  return state;
+
+  const theme = require("@electron/remote").nativeTheme.shouldUseDarkColors
+    ? darkTheme
+    : lightTheme;
+
+  return state
+    .set("cursorColor", theme.cursorColor)
+    .set("cursorAccentColor", theme.cursorAccentColor)
+    .set("foregroundColor", theme.foregroundColor)
+    .set("backgroundColor", theme.backgroundColor)
+    .set("selectionColor", theme.selectionColor)
+    .set("borderColor", theme.borderColor)
+    .set("colors", theme.colors)
+    .set("css", `${config.css || ""} ${theme.css}`);
 };
