@@ -13,5 +13,8 @@
     "hyper-plugin",
     "dark mode"
   ],
-  "description": "Theme for Hyper terminal that copies colors from VS Code GitHub theme and switches light/dark modes automatically"
+  "description": "Theme for Hyper terminal that copies colors from VS Code GitHub theme and switches light/dark modes automatically",
+  "dependencies": {
+    "@electron/remote": "^2.0.4"
+  }
 }
